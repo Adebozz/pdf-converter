@@ -1,37 +1,51 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { IncomingForm, Files } from "formidable";
+import { IncomingForm } from "formidable";
+import fs from "fs";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 
-// NOTE: disable Next.js default body parser for file uploads
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // required for formidable
   },
 };
 
+const parseForm = (req: NextApiRequest): Promise<{ files: any }> => {
+  return new Promise((resolve, reject) => {
+    const form = new IncomingForm({ keepExtensions: true });
+    form.parse(req, (err, _fields, files) => {
+      if (err) reject(err);
+      else resolve({ files });
+    });
+  });
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
   try {
-    const data = await new Promise<Files>((resolve, reject) => {
-      const form = new IncomingForm();
-      form.parse(req, (err, _fields, files) => {
-        if (err) reject(err);
-        else resolve(files);
-      });
-    });
+    const { files } = await parseForm(req);
+    const file = files.file?.[0] || files.file; // handles both single/multiple
 
-    const file = Array.isArray(data.file) ? data.file[0] : data.file;
-    const filePath = file?.filepath || (file as any)?.path;
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-    // TODO: later - use pdfjsLib or pdf-lib to extract and convert pages
-    // e.g. const pdf = await pdfjsLib.getDocument(filePath).promise;
+    const data = fs.readFileSync(file.filepath); // read file buffer
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(data) }).promise;
 
-    return res.status(200).json({
-      message: "PDF received",
-      filePath, // keep for debugging now
-    });
-  } catch (error) {
-    console.error("Upload error:", error);
-    return res.status(500).json({ error: "Failed to process upload" });
+    let textContent = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const text = await page.getTextContent();
+      const pageText = text.items.map((item: any) => item.str).join(" ");
+      textContent += pageText + "\n\n";
+    }
+
+    return res.status(200).json({ text: textContent });
+  } catch (err) {
+    console.error("PDF conversion error:", err);
+    return res.status(500).json({ error: "Failed to convert PDF" });
   }
 }
