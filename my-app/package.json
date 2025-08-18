@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.12",
+    "lucide-react": "^0.540.0",
     "motion": "^12.18.1",
     "next": "15.4.6",
     "pdf-lib": "^1.17.1",
