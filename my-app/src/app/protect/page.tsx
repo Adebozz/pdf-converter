@@ -9,9 +9,9 @@ import usePdfAction from "@/hooks/usePdfAction";
 
 const MotionVStack = motion(VStack);
 
-export default function CompressPage() {
+export default function ProtectPage() {
   const [file, setFile] = useState<File | null>(null);
-  const { handlePdfAction, loading } = usePdfAction("compress", "PDF compressed!");
+  const { handlePdfAction, loading } = usePdfAction("protect", "PDF protected!");
 
   return (
     <DashboardLayout>
@@ -21,15 +21,15 @@ export default function CompressPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Heading>Compress PDF</Heading>
+        <Heading>Protect PDF</Heading>
         <FileUploader onFileAccepted={setFile} />
         <Button
-          onClick={() => handlePdfAction(file, "compressed")}
+          onClick={() => handlePdfAction(file, "protected")}
           colorScheme="teal"
           isDisabled={!file || loading}
           isLoading={loading}
         >
-          Compress
+          Protect
         </Button>
       </MotionVStack>
     </DashboardLayout>

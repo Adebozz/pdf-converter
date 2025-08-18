@@ -9,9 +9,9 @@ import usePdfAction from "@/hooks/usePdfAction";
 
 const MotionVStack = motion(VStack);
 
-export default function CompressPage() {
+export default function SplitPage() {
   const [file, setFile] = useState<File | null>(null);
-  const { handlePdfAction, loading } = usePdfAction("compress", "PDF compressed!");
+  const { handlePdfAction, loading } = usePdfAction("split", "PDF split successfully!");
 
   return (
     <DashboardLayout>
@@ -21,15 +21,15 @@ export default function CompressPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Heading>Compress PDF</Heading>
+        <Heading>Split PDF</Heading>
         <FileUploader onFileAccepted={setFile} />
         <Button
-          onClick={() => handlePdfAction(file, "compressed")}
+          onClick={() => handlePdfAction(file, "split")}
           colorScheme="teal"
           isDisabled={!file || loading}
           isLoading={loading}
         >
-          Compress
+          Split
         </Button>
       </MotionVStack>
     </DashboardLayout>

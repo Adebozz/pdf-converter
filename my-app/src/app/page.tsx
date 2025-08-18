@@ -1,36 +1,37 @@
 "use client";
 
-import Link from "next/link";
-import { VStack, Heading, Button, Text } from "@chakra-ui/react";
+import { useState } from "react";
+import { VStack, Heading, Button } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import FileUploader from "@/components/ui/FileUploader";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import usePdfAction from "@/hooks/usePdfAction";
 
-export default function HomePage() {
+const MotionVStack = motion(VStack);
+
+export default function Home() {
+  const [file, setFile] = useState<File | null>(null);
+  const { handlePdfAction, loading } = usePdfAction("convert", "PDF converted!");
+
   return (
     <DashboardLayout>
-      <VStack spacing={8}>
-        <Heading>PDF Tools Dashboard</Heading>
-        <Text>Select a tool to get started:</Text>
-
-        <VStack spacing={4}>
-          <Link href="/compress">
-            <Button colorScheme="teal" width="200px">
-              Compress PDF
-            </Button>
-          </Link>
-
-          <Link href="/convert">
-            <Button colorScheme="blue" width="200px">
-              Convert PDF
-            </Button>
-          </Link>
-
-          <Link href="/merge">
-            <Button colorScheme="purple" width="200px">
-              Merge PDFs
-            </Button>
-          </Link>
-        </VStack>
-      </VStack>
+      <MotionVStack
+        spacing={6}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Heading>PDF Converter</Heading>
+        <FileUploader onFileAccepted={setFile} />
+        <Button
+          onClick={() => handlePdfAction(file, "converted")}
+          colorScheme="teal"
+          isDisabled={!file || loading}
+          isLoading={loading}
+        >
+          Convert PDF
+        </Button>
+      </MotionVStack>
     </DashboardLayout>
   );
 }

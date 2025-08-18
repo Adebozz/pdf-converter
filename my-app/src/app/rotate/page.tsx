@@ -7,15 +7,15 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import usePdfAction from "@/hooks/usePdfAction";
 import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
-export default function ConvertPage() {
+export default function RotatePage() {
   const [file, setFile] = useState<File | null>(null);
-  const { handlePdfAction, loading } = usePdfAction("convert", "PDF converted!");
+  const { handlePdfAction, loading } = usePdfAction("rotate", "PDF rotated!");
 
   return (
     <DashboardLayout>
       <VStack spacing={6}>
         <FadeInUp>
-          <Heading>Convert PDF</Heading>
+          <Heading>Rotate PDF</Heading>
         </FadeInUp>
 
         <ScaleIn delay={0.1}>
@@ -24,12 +24,12 @@ export default function ConvertPage() {
 
         <FadeInUp delay={0.2}>
           <Button
-            onClick={() => handlePdfAction(file, "converted")}
-            colorScheme="purple"
+            onClick={() => handlePdfAction(file, "rotated")}
+            colorScheme="pink"
             isDisabled={!file || loading}
             isLoading={loading}
           >
-            Convert
+            Rotate
           </Button>
         </FadeInUp>
       </VStack>
