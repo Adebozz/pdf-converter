@@ -2,8 +2,8 @@
 
 import { ChakraProvider, Box } from "@chakra-ui/react";
 import "./globals.css";
-import { SparklesCore } from "../components/ui/Sparkles";
-import ColorToggle from "../components/ui/ColorToggle";
+import { SparklesCore } from "../../components/ui/Sparkles";
+import ColorToggle from "../../components/ui/ColorToggle";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function RootLayout({
