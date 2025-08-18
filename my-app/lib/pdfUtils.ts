@@ -22,3 +22,5 @@ export async function mergePdfs(files: File[]): Promise<Blob> {
   // TODO: replace with real logic
   return files[0].slice(0, files[0].size, "application/pdf");
 }
+
+

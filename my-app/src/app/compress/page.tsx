@@ -4,7 +4,7 @@ import { useState } from "react";
 import { VStack, Heading, Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import FileUploader from "@/components/ui/FileUploader";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import usePdfAction from "@/hooks/usePdfAction";
 
 const MotionVStack = motion(VStack);

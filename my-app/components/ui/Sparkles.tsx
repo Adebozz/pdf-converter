@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import type { Container, SingleOrMultiple } from "@tsparticles/engine";
 import { loadSlim } from "@tsparticles/slim";
-import { cn } from "../../lib/pdfUtils";
+import { cn } from "@/lib/pdfUtils";
 import { motion, useAnimation } from "motion/react";
 
 type ParticlesProps = {
