@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </Collapse>
 
       {/* Animated Page Content */}
-      {/* <Box flex="1" p={8} overflow="hidden">
+      <Box flex="1" p={8} overflow="hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {children}
           </motion.div>
         </AnimatePresence>
-      </Box> */}
+      </Box>
     </Flex>
   );
 }

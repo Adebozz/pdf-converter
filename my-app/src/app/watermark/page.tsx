@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { VStack, Heading, Button } from "@chakra-ui/react";
 import FileUploader from "@/components/ui/FileUploader";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import usePdfAction from "@/hooks/usePdfAction";
 import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
