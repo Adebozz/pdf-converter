@@ -1,30 +1,27 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import formidable from "formidable";
+// src/app/api/merge/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+export const POST = async (req: NextRequest) => {
+  try {
+    // Read the uploaded file(s) as ArrayBuffer
+    const buffer = Buffer.from(await req.arrayBuffer());
+
+    // Write to temp file (for demonstration, only handles single file)
+    const tempFile = `/tmp/uploaded.pdf`;
+    fs.writeFileSync(tempFile, buffer);
+
+    // 🟡 Fake merge: just return the first uploaded file
+    const fileBuffer = fs.readFileSync(tempFile);
+
+    return new NextResponse(fileBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'attachment; filename="merged.pdf"',
+      },
+    });
+  } catch (error) {
+    return NextResponse.json({ error: "Merge failed" }, { status: 500 });
+  }
 };
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).end();
-
-  const form = formidable({ multiples: true });
-
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: "Upload failed" });
-
-    const uploadedFiles = files.files;
-    if (!uploadedFiles) return res.status(400).json({ error: "No files uploaded" });
-
-    // 🟡 Fake merge (just return first file)
-    const firstFile = Array.isArray(uploadedFiles) ? uploadedFiles[0] : uploadedFiles;
-    const fileBuffer = fs.readFileSync(firstFile.filepath);
-
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=merged.pdf");
-    res.send(fileBuffer);
-  });
-}

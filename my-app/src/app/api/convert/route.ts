@@ -1,28 +1,27 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import formidable from "formidable";
+// src/app/api/convert/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+export const POST = async (req: NextRequest) => {
+  try {
+    // Read uploaded file as ArrayBuffer
+    const buffer = Buffer.from(await req.arrayBuffer());
+
+    // Write buffer to temp file
+    const tempFile = `/tmp/uploaded.pdf`;
+    fs.writeFileSync(tempFile, buffer);
+
+    // 🟡 Fake conversion: just return the file back with a new name
+    const fileBuffer = fs.readFileSync(tempFile);
+
+    return new NextResponse(fileBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'attachment; filename="converted.pdf"',
+      },
+    });
+  } catch (error) {
+    return NextResponse.json({ error: "Conversion failed" }, { status: 500 });
+  }
 };
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).end();
-
-  const form = formidable();
-
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: "Upload failed" });
-
-    const file = files.file?.[0];
-    if (!file) return res.status(400).json({ error: "No file uploaded" });
-
-    // 🟡 Fake conversion (just return same file but renamed)
-    const fileBuffer = fs.readFileSync(file.filepath);
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=converted.pdf");
-    res.send(fileBuffer);
-  });
-}
