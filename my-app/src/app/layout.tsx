@@ -18,7 +18,7 @@ export default function RootLayout({
           <Box position="relative" minH="100vh" overflow="hidden">
             {/* Toggle dark mode */}
             <Box position="absolute" top={4} right={4} zIndex={20}>
-              <ColorToggle />
+              {/* <ColorToggle /> */}
             </Box>
 
             {/* Background sparkles */}
