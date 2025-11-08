@@ -133,7 +133,19 @@ export default function DashboardPage() {
 }
 
 // ✅ Reusable feature card
-function FeatureCard({ icon, title, desc, href, colorScheme }: any) {
+function FeatureCard({
+  icon,
+  title,
+  desc,
+  href,
+  colorScheme,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  href: string;
+  colorScheme: string;
+}) {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
