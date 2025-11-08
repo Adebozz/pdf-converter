@@ -1,28 +1,46 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import formidable from "formidable";
-import fs from "fs";
+// src/app/api/compress/route.ts
+import { NextResponse } from "next/server";
 
-export const config = {
-  api: {
-    bodyParser: false, // ❌ disable default bodyParser for file uploads
-  },
-};
+// If you're on Vercel / Next.js app router, this keeps it on the Node runtime
+export const runtime = "nodejs";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).end();
+export async function POST(req: Request) {
+  try {
+    // Parse multipart/form-data sent from the client
+    const formData = await req.formData();
+    const file = formData.get("file");
 
-  const form = formidable();
+    if (!file || !(file instanceof File)) {
+      return NextResponse.json(
+        { error: "No file uploaded" },
+        { status: 400 }
+      );
+    }
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: "Upload failed" });
+    // "Compress" – for now we'll just echo the file back like your original code
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    const file = files.file?.[0];
-    if (!file) return res.status(400).json({ error: "No file uploaded" });
+    return new Response(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'attachment; filename="compressed.pdf"',
+      },
+    });
+  } catch (err) {
+    console.error("Upload/compress error:", err);
+    return NextResponse.json(
+      { error: "Upload failed" },
+      { status: 500 }
+    );
+  }
+}
 
-    // 🟡 Fake compression (just return the same file)
-    const fileBuffer = fs.readFileSync(file.filepath);
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=compressed.pdf");
-    res.send(fileBuffer);
-  });
+// Optional: so you can hit it in the browser and see it's alive
+export async function GET() {
+  return NextResponse.json(
+    { message: "Use POST with form-data 'file' to compress PDF" },
+    { status: 200 }
+  );
 }
