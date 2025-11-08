@@ -1,37 +1,109 @@
 "use client";
 
 import { useState } from "react";
-import { VStack, Heading, Button } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import FileUploader from "@/components/ui/FileUploader";
+import {
+  Box,
+  Heading,
+  Text,
+  Button,
+  SimpleGrid,
+  Flex,
+  useColorMode,
+  Badge,
+} from "@chakra-ui/react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import FileUploader from "@/components/ui/FileUploader";
 import usePdfAction from "@/hooks/usePdfAction";
-
-const MotionVStack = motion(VStack);
+import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
 export default function SplitPage() {
   const [file, setFile] = useState<File | null>(null);
-  const { handlePdfAction, loading } = usePdfAction("split", "PDF split successfully!");
+  const { handlePdfAction, loading } = usePdfAction("split", "PDF split!");
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   return (
     <DashboardLayout>
-      <MotionVStack
-        spacing={6}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Heading>Split PDF</Heading>
-        <FileUploader onFileAccepted={setFile} />
-        <Button
-          onClick={() => handlePdfAction(file, "split")}
-          colorScheme="teal"
-          isDisabled={!file || loading}
-          isLoading={loading}
-        >
-          Split
-        </Button>
-      </MotionVStack>
+      <Box maxW="5xl" mx="auto" px={4} py={10}>
+        <Flex mb={6}>
+          <Badge
+            px={3}
+            py={1}
+            rounded="full"
+            fontSize="xs"
+            display="inline-flex"
+            alignItems="center"
+            gap={2}
+            bg={isDark ? "orange.900" : "orange.50"}
+            color={isDark ? "orange.100" : "orange.700"}
+            border="1px solid"
+            borderColor={isDark ? "orange.700" : "orange.100"}
+          >
+            <Box w={2} h={2} rounded="full" bg={isDark ? "orange.200" : "orange.500"} />
+            Split tool
+          </Badge>
+        </Flex>
+
+        <SimpleGrid columns={{ base: 1, lg: 3 }} gap={8}>
+          <Box gridColumn={{ lg: "span 2" }} display="flex" flexDirection="column" gap={6}>
+            <FadeInUp>
+              <Box>
+                <Heading size="lg" color={isDark ? "white" : "gray.900"}>
+                  Split PDF
+                </Heading>
+                <Text mt={2} fontSize="sm" color={isDark ? "gray.200" : "gray.500"}>
+                  Extract pages from a PDF or split it into multiple smaller files.
+                </Text>
+              </Box>
+            </FadeInUp>
+
+            <ScaleIn delay={0.05}>
+              <Box
+                bg={isDark ? "whiteAlpha.50" : "gray.50"}
+                border="1px dashed"
+                borderColor={isDark ? "whiteAlpha.200" : "gray.200"}
+                rounded="xl"
+                p={6}
+              >
+                <FileUploader onFileAccepted={setFile} />
+                <Text mt={2} fontSize="xs" textAlign="center" color={isDark ? "gray.400" : "gray.400"}>
+                  Upload a PDF to split
+                </Text>
+              </Box>
+            </ScaleIn>
+
+            <FadeInUp delay={0.1}>
+              <Button
+                onClick={() => handlePdfAction(file, "split")}
+                colorScheme="orange"
+                isDisabled={!file || loading}
+                isLoading={loading}
+                alignSelf={{ base: "stretch", sm: "flex-start" }}
+              >
+                Split
+              </Button>
+            </FadeInUp>
+          </Box>
+
+          <FadeInUp delay={0.15}>
+            <Box
+              bg={isDark ? "whiteAlpha.50" : "white"}
+              border="1px solid"
+              borderColor={isDark ? "whiteAlpha.200" : "gray.200"}
+              rounded="xl"
+              p={4}
+              h="fit-content"
+            >
+              <Heading as="h2" size="sm" mb={3} color={isDark ? "white" : "gray.900"}>
+                About this tool
+              </Heading>
+              <Text fontSize="xs" color={isDark ? "gray.200" : "gray.600"}>
+                You can extend the API to accept page ranges (e.g. 1–3, 5) and return multiple files.
+              </Text>
+            </Box>
+          </FadeInUp>
+        </SimpleGrid>
+      </Box>
     </DashboardLayout>
   );
 }
