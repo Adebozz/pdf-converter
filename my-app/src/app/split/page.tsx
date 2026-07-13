@@ -13,6 +13,7 @@ import {
   HStack,
   Input,
   FormLabel,
+  Select,
 } from "@chakra-ui/react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import FileUploader from "@/components/ui/FileUploader";
@@ -22,6 +23,7 @@ import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
 export default function SplitPage() {
   const [file, setFile] = useState<File | null>(null);
+  const [mode, setMode] = useState("range");
   const [from, setFrom] = useState("1");
   const [to, setTo] = useState("");
   const { handlePdfAction, loading } = usePdfAction("split", "PDF split!");
@@ -80,30 +82,41 @@ export default function SplitPage() {
             </ScaleIn>
 
             <FadeInUp delay={0.08}>
-              <HStack spacing={4} align="flex-end">
+              <HStack spacing={4} align="flex-end" flexWrap="wrap">
                 <Box>
-                  <FormLabel fontSize="sm" mb={1}>From page</FormLabel>
-                  <Input
-                    size="sm"
-                    type="number"
-                    min={1}
-                    value={from}
-                    onChange={(e) => setFrom(e.target.value)}
-                    w="28"
-                  />
+                  <FormLabel fontSize="sm" mb={1}>Split mode</FormLabel>
+                  <Select size="sm" value={mode} onChange={(e) => setMode(e.target.value)} w="56">
+                    <option value="range">Extract page range (one PDF)</option>
+                    <option value="pages">Every page separately (ZIP)</option>
+                  </Select>
                 </Box>
-                <Box>
-                  <FormLabel fontSize="sm" mb={1}>To page</FormLabel>
-                  <Input
-                    size="sm"
-                    type="number"
-                    min={1}
-                    placeholder="last"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value)}
-                    w="28"
-                  />
-                </Box>
+                {mode === "range" && (
+                  <>
+                    <Box>
+                      <FormLabel fontSize="sm" mb={1}>From page</FormLabel>
+                      <Input
+                        size="sm"
+                        type="number"
+                        min={1}
+                        value={from}
+                        onChange={(e) => setFrom(e.target.value)}
+                        w="28"
+                      />
+                    </Box>
+                    <Box>
+                      <FormLabel fontSize="sm" mb={1}>To page</FormLabel>
+                      <Input
+                        size="sm"
+                        type="number"
+                        min={1}
+                        placeholder="last"
+                        value={to}
+                        onChange={(e) => setTo(e.target.value)}
+                        w="28"
+                      />
+                    </Box>
+                  </>
+                )}
               </HStack>
             </FadeInUp>
 
@@ -111,6 +124,7 @@ export default function SplitPage() {
               <Button
                 onClick={() =>
                   handlePdfAction(file, "split", {
+                    mode,
                     from: from || "1",
                     ...(to ? { to } : {}),
                   })
@@ -138,8 +152,9 @@ export default function SplitPage() {
                 About this tool
               </Heading>
               <Text fontSize="xs" color={isDark ? "gray.200" : "gray.600"}>
-                Extracts the selected page range into a new PDF. Leave &quot;To page&quot; empty to
-                include everything through the last page.
+                Range mode extracts the selected pages into one PDF (leave &quot;To page&quot; empty
+                for everything through the end). Every-page mode gives you a ZIP with one PDF
+                per page.
               </Text>
             </Box>
           </FadeInUp>

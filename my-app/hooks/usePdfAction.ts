@@ -46,19 +46,21 @@ export default function usePdfAction(endpoint: string, successMsg: string) {
       const url = window.URL.createObjectURL(blob);
 
       const contentType = res.headers.get("Content-Type") ?? "";
-      const ext = contentType.includes("text/plain")
-        ? ".txt"
-        : contentType.includes("application/zip")
-          ? ".zip"
-          : contentType.includes("image/png")
-            ? ".png"
-            : "";
-      let baseName = files.length > 1 ? "output.pdf" : files[0].name;
-      if (ext) baseName = baseName.replace(/\.pdf$/i, "");
+      const extMap: [string, string][] = [
+        ["text/plain", ".txt"],
+        ["application/zip", ".zip"],
+        ["image/png", ".png"],
+        ["image/jpeg", ".jpg"],
+        ["wordprocessingml", ".docx"],
+        ["application/pdf", ".pdf"],
+      ];
+      const ext = extMap.find(([t]) => contentType.includes(t))?.[1] ?? "";
+      const stem = (files.length > 1 ? "output" : files[0].name).replace(/\.[^.]+$/, "");
+      const baseName = `${stem}${ext || ".bin"}`;
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${outputPrefix}-${baseName}${ext}`;
+      a.download = `${outputPrefix}-${baseName}`;
       document.body.appendChild(a);
       a.click();
       a.remove();

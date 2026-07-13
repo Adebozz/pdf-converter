@@ -23,12 +23,15 @@ import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
 export default function MergePage() {
   const [files, setFiles] = useState<File[]>([]);
+  const [previewIndex, setPreviewIndex] = useState(0);
   const { handlePdfAction, loading } = usePdfAction("merge", "PDFs merged!");
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
-  const removeFile = (index: number) =>
+  const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewIndex((prev) => (index < prev ? prev - 1 : Math.min(prev, files.length - 2)));
+  };
 
   return (
     <DashboardLayout>
@@ -94,9 +97,19 @@ export default function MergePage() {
                         px={3}
                         py={1.5}
                         rounded="md"
-                        bg={isDark ? "whiteAlpha.100" : "white"}
+                        cursor="pointer"
+                        onClick={() => setPreviewIndex(i)}
+                        bg={
+                          i === previewIndex
+                            ? isDark ? "blue.900" : "blue.50"
+                            : isDark ? "whiteAlpha.100" : "white"
+                        }
                         border="1px solid"
-                        borderColor={isDark ? "whiteAlpha.200" : "gray.200"}
+                        borderColor={
+                          i === previewIndex
+                            ? isDark ? "blue.500" : "blue.300"
+                            : isDark ? "whiteAlpha.200" : "gray.200"
+                        }
                       >
                         <Text noOfLines={1}>
                           {i + 1}. {f.name}
@@ -106,14 +119,23 @@ export default function MergePage() {
                           icon={<CloseIcon boxSize={2.5} />}
                           size="xs"
                           variant="ghost"
-                          onClick={() => removeFile(i)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(i);
+                          }}
                         />
                       </ListItem>
                     ))}
                   </List>
                 )}
 
-                <PdfPreview file={files[0] ?? null} />
+                {files.length > 0 && (
+                  <Text mt={4} fontSize="xs" textAlign="center" color={isDark ? "gray.400" : "gray.500"}>
+                    Previewing: {files[Math.min(previewIndex, files.length - 1)]?.name} — click a
+                    file above to preview it
+                  </Text>
+                )}
+                <PdfPreview file={files[Math.min(previewIndex, files.length - 1)] ?? null} />
               </Box>
             </ScaleIn>
 
@@ -143,8 +165,8 @@ export default function MergePage() {
                 About this tool
               </Heading>
               <Text fontSize="xs" color={isDark ? "gray.200" : "gray.600"}>
-                Combines your uploaded PDFs into one document, in the order shown. The preview
-                displays the first file.
+                Combines your uploaded PDFs into one document, in the order shown. Click any file
+                in the list to preview it before merging.
               </Text>
             </Box>
           </FadeInUp>

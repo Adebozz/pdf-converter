@@ -1,12 +1,16 @@
 // src/app/api/split/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
+import { buildZip, ZipEntry } from "@/lib/zip";
 
 export const runtime = "nodejs";
 
 /**
- * Extracts a page range from the uploaded PDF.
- * Form fields: files (PDF), from (1-based, default 1), to (default last page).
+ * Splits a PDF. Form fields:
+ * - files: the PDF
+ * - mode: "range" (default) extracts pages from..to into one PDF;
+ *         "pages" splits every page into its own PDF, returned as a ZIP.
+ * - from/to: 1-based range (range mode only; to defaults to last page).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +22,36 @@ export async function POST(req: NextRequest) {
 
     const src = await PDFDocument.load(await file.arrayBuffer());
     const pageCount = src.getPageCount();
+    const mode = String(formData.get("mode") ?? "range");
 
+    if (mode === "pages") {
+      if (pageCount === 1) {
+        return NextResponse.json(
+          { error: "This PDF has only one page — nothing to split." },
+          { status: 400 }
+        );
+      }
+      const pad = String(pageCount).length;
+      const entries: ZipEntry[] = [];
+      for (let i = 0; i < pageCount; i++) {
+        const out = await PDFDocument.create();
+        const [page] = await out.copyPages(src, [i]);
+        out.addPage(page);
+        entries.push({
+          name: `page-${String(i + 1).padStart(pad, "0")}.pdf`,
+          data: Buffer.from(await out.save()),
+        });
+      }
+      return new NextResponse(new Uint8Array(buildZip(entries)), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/zip",
+          "Content-Disposition": 'attachment; filename="split-pages.zip"',
+        },
+      });
+    }
+
+    // range mode
     const from = Math.max(1, parseInt(String(formData.get("from") ?? "1"), 10) || 1);
     const to = Math.min(pageCount, parseInt(String(formData.get("to") ?? pageCount), 10) || pageCount);
 
