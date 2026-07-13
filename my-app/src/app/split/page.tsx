@@ -10,14 +10,20 @@ import {
   Flex,
   useColorMode,
   Badge,
+  HStack,
+  Input,
+  FormLabel,
 } from "@chakra-ui/react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import FileUploader from "@/components/ui/FileUploader";
+import PdfPreview from "@/components/ui/PDFPreview";
 import usePdfAction from "@/hooks/usePdfAction";
 import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
 export default function SplitPage() {
   const [file, setFile] = useState<File | null>(null);
+  const [from, setFrom] = useState("1");
+  const [to, setTo] = useState("");
   const { handlePdfAction, loading } = usePdfAction("split", "PDF split!");
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -69,12 +75,46 @@ export default function SplitPage() {
                 <Text mt={2} fontSize="xs" textAlign="center" color={isDark ? "gray.400" : "gray.400"}>
                   Upload a PDF to split
                 </Text>
+                <PdfPreview file={file} />
               </Box>
             </ScaleIn>
 
+            <FadeInUp delay={0.08}>
+              <HStack spacing={4} align="flex-end">
+                <Box>
+                  <FormLabel fontSize="sm" mb={1}>From page</FormLabel>
+                  <Input
+                    size="sm"
+                    type="number"
+                    min={1}
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    w="28"
+                  />
+                </Box>
+                <Box>
+                  <FormLabel fontSize="sm" mb={1}>To page</FormLabel>
+                  <Input
+                    size="sm"
+                    type="number"
+                    min={1}
+                    placeholder="last"
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                    w="28"
+                  />
+                </Box>
+              </HStack>
+            </FadeInUp>
+
             <FadeInUp delay={0.1}>
               <Button
-                onClick={() => handlePdfAction(file, "split")}
+                onClick={() =>
+                  handlePdfAction(file, "split", {
+                    from: from || "1",
+                    ...(to ? { to } : {}),
+                  })
+                }
                 colorScheme="orange"
                 isDisabled={!file || loading}
                 isLoading={loading}
@@ -98,7 +138,8 @@ export default function SplitPage() {
                 About this tool
               </Heading>
               <Text fontSize="xs" color={isDark ? "gray.200" : "gray.600"}>
-                You can extend the API to accept page ranges (e.g. 1–3, 5) and return multiple files.
+                Extracts the selected page range into a new PDF. Leave &quot;To page&quot; empty to
+                include everything through the last page.
               </Text>
             </Box>
           </FadeInUp>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { VStack, Heading, Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import FileUploader from "@/components/ui/FileUploader";
+import PdfPreview from "@/components/ui/PDFPreview";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import usePdfAction from "@/hooks/usePdfAction";
 
@@ -31,6 +32,8 @@ export default function ProtectPage() {
         >
           Protect
         </Button>
+
+        <PdfPreview file={file} />
       </MotionVStack>
     </DashboardLayout>
   );

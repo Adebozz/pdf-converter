@@ -2,23 +2,37 @@ import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Box, Text, useToast } from '@chakra-ui/react'
 
-export default function FileUploader({ onFileAccepted }: { onFileAccepted: (file: File) => void }) {
+interface FileUploaderProps {
+  onFileAccepted?: (file: File) => void
+  onFilesAccepted?: (files: File[]) => void
+  multiple?: boolean
+}
+
+export default function FileUploader({ onFileAccepted, onFilesAccepted, multiple = false }: FileUploaderProps) {
   const toast = useToast()
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0]
-    if (file && file.type === 'application/pdf') {
-      onFileAccepted(file)
-    } else {
+    const pdfs = acceptedFiles.filter((f) => f.type === 'application/pdf')
+    if (pdfs.length === 0) {
       toast({
         title: 'Only PDF files are allowed.',
         status: 'error',
         duration: 3000,
       })
+      return
     }
-  }, [onFileAccepted, toast])
+    if (multiple) {
+      onFilesAccepted?.(pdfs)
+    } else {
+      onFileAccepted?.(pdfs[0])
+    }
+  }, [onFileAccepted, onFilesAccepted, multiple, toast])
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'application/pdf': [] } })
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'application/pdf': [] },
+    multiple,
+  })
 
   return (
     <Box
@@ -34,7 +48,9 @@ export default function FileUploader({ onFileAccepted }: { onFileAccepted: (file
     >
       <input {...getInputProps()} />
       <Text fontSize="lg">
-        {isDragActive ? 'Drop the PDF here...' : 'Drag & drop a PDF here, or click to browse'}
+        {isDragActive
+          ? `Drop the PDF${multiple ? 's' : ''} here...`
+          : `Drag & drop ${multiple ? 'PDFs' : 'a PDF'} here, or click to browse`}
       </Text>
     </Box>
   )

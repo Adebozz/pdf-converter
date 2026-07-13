@@ -1,20 +1,26 @@
 // src/app/api/convert/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
+import { PDFDocument } from "pdf-lib";
 
-export const POST = async (req: NextRequest) => {
+export const runtime = "nodejs";
+
+/**
+ * Normalizes/re-processes the PDF (re-saved via pdf-lib).
+ * Converting to other formats (Word, images) requires extra tooling
+ * such as LibreOffice or a rendering library — see README.
+ */
+export async function POST(req: NextRequest) {
   try {
-    // Read uploaded file as ArrayBuffer
-    const buffer = Buffer.from(await req.arrayBuffer());
+    const formData = await req.formData();
+    const file = formData.get("files");
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "No PDF file uploaded." }, { status: 400 });
+    }
 
-    // Write buffer to temp file
-    const tempFile = `/tmp/uploaded.pdf`;
-    fs.writeFileSync(tempFile, buffer);
+    const doc = await PDFDocument.load(await file.arrayBuffer());
+    const bytes = await doc.save();
 
-    // 🟡 Fake conversion: just return the file back with a new name
-    const fileBuffer = fs.readFileSync(tempFile);
-
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(Buffer.from(bytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
@@ -22,6 +28,7 @@ export const POST = async (req: NextRequest) => {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: "Conversion failed" }, { status: 500 });
+    console.error("Convert error:", error);
+    return NextResponse.json({ error: "Conversion failed. Is the file a valid PDF?" }, { status: 500 });
   }
-};
+}

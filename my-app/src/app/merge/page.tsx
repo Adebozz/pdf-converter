@@ -10,17 +10,25 @@ import {
   Flex,
   useColorMode,
   Badge,
+  List,
+  ListItem,
+  IconButton,
 } from "@chakra-ui/react";
+import { CloseIcon } from "@chakra-ui/icons";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import FileUploader from "@/components/ui/FileUploader";
+import PdfPreview from "@/components/ui/PDFPreview";
 import usePdfAction from "@/hooks/usePdfAction";
 import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
 export default function MergePage() {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const { handlePdfAction, loading } = usePdfAction("merge", "PDFs merged!");
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+
+  const removeFile = (index: number) =>
+    setFiles((prev) => prev.filter((_, i) => i !== index));
 
   return (
     <DashboardLayout>
@@ -52,8 +60,8 @@ export default function MergePage() {
                   Merge PDFs
                 </Heading>
                 <Text mt={2} fontSize="sm" color={isDark ? "gray.200" : "gray.500"}>
-                  Combine multiple PDFs into a single file. (You can adjust the backend later to
-                  accept multiple files.)
+                  Combine multiple PDFs into a single file. Upload two or more PDFs — they are
+                  merged in the order listed.
                 </Text>
               </Box>
             </FadeInUp>
@@ -66,22 +74,58 @@ export default function MergePage() {
                 rounded="xl"
                 p={6}
               >
-                <FileUploader onFileAccepted={setFile} />
+                <FileUploader
+                  multiple
+                  onFilesAccepted={(newFiles) => setFiles((prev) => [...prev, ...newFiles])}
+                />
                 <Text mt={2} fontSize="xs" textAlign="center" color={isDark ? "gray.400" : "gray.400"}>
-                  Upload a PDF to merge
+                  Upload 2+ PDFs to merge
                 </Text>
+
+                {files.length > 0 && (
+                  <List spacing={2} mt={4}>
+                    {files.map((f, i) => (
+                      <ListItem
+                        key={`${f.name}-${i}`}
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        fontSize="sm"
+                        px={3}
+                        py={1.5}
+                        rounded="md"
+                        bg={isDark ? "whiteAlpha.100" : "white"}
+                        border="1px solid"
+                        borderColor={isDark ? "whiteAlpha.200" : "gray.200"}
+                      >
+                        <Text noOfLines={1}>
+                          {i + 1}. {f.name}
+                        </Text>
+                        <IconButton
+                          aria-label={`Remove ${f.name}`}
+                          icon={<CloseIcon boxSize={2.5} />}
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => removeFile(i)}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+
+                <PdfPreview file={files[0] ?? null} />
               </Box>
             </ScaleIn>
 
             <FadeInUp delay={0.1}>
               <Button
-                onClick={() => handlePdfAction(file, "merged")}
+                onClick={() => handlePdfAction(files, "merged")}
                 colorScheme="blue"
-                isDisabled={!file || loading}
+                isDisabled={files.length < 2 || loading}
                 isLoading={loading}
                 alignSelf={{ base: "stretch", sm: "flex-start" }}
               >
-                Merge
+                Merge {files.length > 0 ? `${files.length} file${files.length === 1 ? "" : "s"}` : ""}
               </Button>
             </FadeInUp>
           </Box>
@@ -99,8 +143,8 @@ export default function MergePage() {
                 About this tool
               </Heading>
               <Text fontSize="xs" color={isDark ? "gray.200" : "gray.600"}>
-                This will return a single PDF that combines your uploaded document(s). To support
-                multiple files, extend the FileUploader and API to accept an array.
+                Combines your uploaded PDFs into one document, in the order shown. The preview
+                displays the first file.
               </Text>
             </Box>
           </FadeInUp>

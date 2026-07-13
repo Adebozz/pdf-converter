@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { VStack, Heading, Button } from "@chakra-ui/react";
 import FileUploader from "@/components/ui/FileUploader";
+import PdfPreview from "@/components/ui/PDFPreview";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import usePdfAction from "@/hooks/usePdfAction";
 import { FadeInUp, ScaleIn } from "@/components/ui/animations";
@@ -32,6 +33,8 @@ export default function ExtractPage() {
             Extract
           </Button>
         </FadeInUp>
+
+        <PdfPreview file={file} />
       </VStack>
     </DashboardLayout>
   );

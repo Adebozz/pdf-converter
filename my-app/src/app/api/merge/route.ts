@@ -1,20 +1,30 @@
 // src/app/api/merge/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
+import { PDFDocument } from "pdf-lib";
 
-export const POST = async (req: NextRequest) => {
+export const runtime = "nodejs";
+
+export async function POST(req: NextRequest) {
   try {
-    // Read the uploaded file(s) as ArrayBuffer
-    const buffer = Buffer.from(await req.arrayBuffer());
+    const formData = await req.formData();
+    const files = formData.getAll("files").filter((f): f is File => f instanceof File);
 
-    // Write to temp file (for demonstration, only handles single file)
-    const tempFile = `/tmp/uploaded.pdf`;
-    fs.writeFileSync(tempFile, buffer);
+    if (files.length === 0) {
+      return NextResponse.json({ error: "No PDF files uploaded." }, { status: 400 });
+    }
+    if (files.length < 2) {
+      return NextResponse.json({ error: "Upload at least 2 PDFs to merge." }, { status: 400 });
+    }
 
-    // 🟡 Fake merge: just return the first uploaded file
-    const fileBuffer = fs.readFileSync(tempFile);
+    const merged = await PDFDocument.create();
+    for (const file of files) {
+      const src = await PDFDocument.load(await file.arrayBuffer());
+      const pages = await merged.copyPages(src, src.getPageIndices());
+      pages.forEach((p) => merged.addPage(p));
+    }
 
-    return new NextResponse(fileBuffer, {
+    const bytes = await merged.save();
+    return new NextResponse(Buffer.from(bytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
@@ -22,6 +32,7 @@ export const POST = async (req: NextRequest) => {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: "Merge failed" }, { status: 500 });
+    console.error("Merge error:", error);
+    return NextResponse.json({ error: "Merge failed. Are all files valid PDFs?" }, { status: 500 });
   }
-};
+}

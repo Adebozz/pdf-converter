@@ -2,14 +2,12 @@
 import { NextResponse } from "next/server";
 
 // Required in App Router API routes — must export a method (GET/POST etc.)
-export async function POST(req: Request) {
-  try {
-    // Example placeholder response
-    return NextResponse.json({ message: "OCR endpoint working (stub)" }, { status: 200 });
-  } catch (error) {
-    console.error("OCR error:", error);
-    return NextResponse.json({ error: "Failed to process OCR" }, { status: 500 });
-  }
+export async function POST() {
+  // OCR needs an OCR engine (e.g. tesseract.js) — not implemented yet.
+  return NextResponse.json(
+    { error: "OCR isn't available yet — it needs an OCR engine like tesseract.js." },
+    { status: 501 }
+  );
 }
 
 // Optional: quick test route for GET requests

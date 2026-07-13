@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import FileUploader from "@/components/ui/FileUploader";
+import PdfPreview from "@/components/ui/PDFPreview";
 import usePdfAction from "@/hooks/usePdfAction";
 import { FadeInUp, ScaleIn } from "@/components/ui/animations";
 
@@ -72,6 +73,7 @@ export default function ConvertPage() {
                 <Text mt={2} fontSize="xs" textAlign="center" color={isDark ? "gray.400" : "gray.400"}>
                   PDF only
                 </Text>
+                <PdfPreview file={file} />
               </Box>
             </ScaleIn>
 
