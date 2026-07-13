@@ -16,15 +16,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No PDF file uploaded." }, { status: 400 });
     }
 
-    // pdfjs needs DOMMatrix at import time; stub it if the canvas
-    // polyfill isn't available (text extraction doesn't render pages).
-    if (typeof (globalThis as { DOMMatrix?: unknown }).DOMMatrix === "undefined") {
-      (globalThis as { DOMMatrix?: unknown }).DOMMatrix = class {
-        a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
-        scale() { return this; }
-        translate() { return this; }
-        transform() { return this; }
-      };
+    // pdfjs needs DOMMatrix at import time. If @napi-rs/canvas is
+    // available, pdfjs polyfills it properly; otherwise stub it
+    // (text extraction doesn't render pages, so a stub is fine).
+    try {
+      await import("@napi-rs/canvas");
+    } catch {
+      if (typeof (globalThis as { DOMMatrix?: unknown }).DOMMatrix === "undefined") {
+        (globalThis as { DOMMatrix?: unknown }).DOMMatrix = class {
+          a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+          scale() { return this; }
+          translate() { return this; }
+          transform() { return this; }
+        };
+      }
     }
 
     const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");

@@ -46,8 +46,15 @@ export default function usePdfAction(endpoint: string, successMsg: string) {
       const url = window.URL.createObjectURL(blob);
 
       const contentType = res.headers.get("Content-Type") ?? "";
-      const ext = contentType.includes("text/plain") ? ".txt" : "";
-      const baseName = files.length > 1 ? "output.pdf" : files[0].name;
+      const ext = contentType.includes("text/plain")
+        ? ".txt"
+        : contentType.includes("application/zip")
+          ? ".zip"
+          : contentType.includes("image/png")
+            ? ".png"
+            : "";
+      let baseName = files.length > 1 ? "output.pdf" : files[0].name;
+      if (ext) baseName = baseName.replace(/\.pdf$/i, "");
 
       const a = document.createElement("a");
       a.href = url;

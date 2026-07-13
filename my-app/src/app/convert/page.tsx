@@ -56,7 +56,8 @@ export default function ConvertPage() {
                   Convert PDF
                 </Heading>
                 <Text mt={2} fontSize="sm" color={isDark ? "gray.200" : "gray.500"}>
-                  Convert your PDF to a different format (e.g. processed PDF, image-ready, etc.).
+                  Convert your PDF to PNG images — one image per page. Multi-page PDFs download
+                  as a ZIP.
                 </Text>
               </Box>
             </FadeInUp>
@@ -103,8 +104,8 @@ export default function ConvertPage() {
                 About this tool
               </Heading>
               <Text fontSize="xs" color={isDark ? "gray.200" : "gray.600"}>
-                Use this when you need the PDF in a different processed format. The backend can later
-                be updated to produce images, Word, etc.
+                Renders each page as a high-resolution PNG (2x scale, up to 50 pages). A single-page
+                PDF downloads as one PNG; multi-page PDFs come back as a ZIP.
               </Text>
             </Box>
           </FadeInUp>

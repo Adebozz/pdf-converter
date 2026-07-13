@@ -53,7 +53,8 @@ export default function OcrPage() {
                   OCR PDF
                 </Heading>
                 <Text mt={2} fontSize="sm" color={isDark ? "gray.200" : "gray.500"}>
-                  Extract text from scanned PDFs. Backend can be wired to Tesseract or another OCR service.
+                  Extract text from scanned PDFs using Tesseract OCR. Requires tesseract on the
+                  server (brew install tesseract).
                 </Text>
               </Box>
             </FadeInUp>
