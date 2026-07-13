@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cantoo/pdf-lib": "^2.7.2",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^2.10.9",
     "@emotion/react": "^11.14.0",
@@ -32,7 +33,8 @@
     "react-icons": "^5.5.0",
     "react-pdf": "^10.1.0",
     "tailwind-merge": "^3.3.1",
-    "tailwind-variants": "^1.0.0"
+    "tailwind-variants": "^1.0.0",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
