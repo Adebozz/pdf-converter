@@ -22,7 +22,7 @@
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.540.0",
     "motion": "^12.18.1",
-    "next": "15.4.6",
+    "next": "15.4.10",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.3.31",
     "react": "19.1.0",
